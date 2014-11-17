@@ -209,14 +209,14 @@ options:
   exact_count:
     version_added: "1.5"
     description:
-      - An integer value which indicates how many instances that match the 'count_tag' parameter should be running. Instances are either created or terminated based on this value. 
+      - An integer value which indicates how many instances that match the 'count_tag' parameter should be running. Instances are either created or terminated based on this value.
     required: false
     default: null
     aliases: []
   count_tag:
     version_added: "1.5"
     description:
-      - Used with 'exact_count' to determine how many nodes based on a specific tag criteria should be running.  This can be expressed in multiple ways and is shown in the EXAMPLES section.  For instance, one can request 25 servers that are tagged with "class=webserver".  
+      - Used with 'exact_count' to determine how many nodes based on a specific tag criteria should be running.  This can be expressed in multiple ways and is shown in the EXAMPLES section.  For instance, one can request 25 servers that are tagged with "class=webserver".
     required: false
     default: null
     aliases: []
@@ -249,7 +249,7 @@ EXAMPLES = '''
     wait: yes
     wait_timeout: 500
     count: 5
-    instance_tags: 
+    instance_tags:
        db: postgres
     monitoring: yes
 
@@ -281,7 +281,7 @@ local_action:
     wait: yes
     wait_timeout: 500
     count: 5
-    instance_tags: 
+    instance_tags:
         db: postgres
     monitoring: yes
 
@@ -438,11 +438,11 @@ local_action:
     image: emi-40603AD1
     wait: yes
     group: webserver
-    instance_tags: 
+    instance_tags:
         Name: database
         dbtype: postgres
     exact_count: 5
-    count_tag: 
+    count_tag:
         Name: database
         dbtype: postgres
 
@@ -492,8 +492,8 @@ def find_running_instances_by_count_tag(module, ec2, count_tag, zone=None):
     for res in reservations:
         if hasattr(res, 'instances'):
             for inst in res.instances:
-                instances.append(inst) 
-                
+                instances.append(inst)
+
     return reservations, instances
 
 
@@ -504,7 +504,7 @@ def _set_none_to_blank(dictionary):
             result[k] = _set_none_to_blank(result[k])
         elif not result[k]:
             result[k] = ""
-    return result                        
+    return result
 
 
 def get_reservations(module, ec2, tags=None, state=None, zone=None):
@@ -622,7 +622,7 @@ def create_block_device(module, ec2, volume):
     # http://aws.amazon.com/about-aws/whats-new/2013/10/09/ebs-provisioned-iops-maximum-iops-gb-ratio-increased-to-30-1/
     MAX_IOPS_TO_SIZE_RATIO = 30
     if 'snapshot' not in volume and 'ephemeral' not in volume:
-        if 'volume_size' not in volume: 
+        if 'volume_size' not in volume:
             module.fail_json(msg = 'Size must be specified when creating a new volume or modifying the root volume')
     if 'snapshot' in volume:
         if 'device_type' in volume and volume.get('device_type') == 'io1' and 'iops' not in volume:
@@ -633,7 +633,7 @@ def create_block_device(module, ec2, volume):
             if int(volume['iops']) > MAX_IOPS_TO_SIZE_RATIO * size:
                 module.fail_json(msg = 'IOPS must be at most %d times greater than size' % MAX_IOPS_TO_SIZE_RATIO)
     if 'ephemeral' in volume:
-        if 'snapshot' in volume: 
+        if 'snapshot' in volume:
             module.fail_json(msg = 'Cannot set both ephemeral and snapshot')
     return BlockDeviceType(snapshot_id=volume.get('snapshot'),
                            ephemeral_name=volume.get('ephemeral'),
@@ -698,18 +698,18 @@ def enforce_count(module, ec2):
             for inst in instance_dict_array:
                 inst['state'] = "terminated"
                 terminated_list.append(inst)
-            instance_dict_array = terminated_list            
-   
-    # ensure all instances are dictionaries 
+            instance_dict_array = terminated_list
+
+    # ensure all instances are dictionaries
     all_instances = []
     for inst in instances:
         if type(inst) is not dict:
             inst = get_instance_info(inst)
-        all_instances.append(inst)            
+        all_instances.append(inst)
 
     return (all_instances, instance_dict_array, changed_instance_ids, changed)
-    
-        
+
+
 def create_instances(module, ec2, override_count=None):
     """
     Creates new instances
@@ -840,7 +840,7 @@ def create_instances(module, ec2, override_count=None):
                             groups=group_id,
                             associate_public_ip_address=assign_public_ip)
                     interfaces = boto.ec2.networkinterface.NetworkInterfaceCollection(interface)
-                    params['network_interfaces'] = interfaces                   
+                    params['network_interfaces'] = interfaces
             else:
                 params['subnet_id'] = vpc_subnet_id
                 if vpc_subnet_id:
@@ -850,11 +850,11 @@ def create_instances(module, ec2, override_count=None):
 
             if volumes:
                 bdm = BlockDeviceMapping()
-                for volume in volumes: 
+                for volume in volumes:
                     if 'device_name' not in volume:
                         module.fail_json(msg = 'Device name must be set for volume')
                     # Minimum volume size is 1GB. We'll use volume size explicitly set to 0
-                    # to be a signal not to create this volume 
+                    # to be a signal not to create this volume
                     if 'volume_size' not in volume or int(volume['volume_size']) > 0:
                         bdm[volume['device_name']] = create_block_device(module, ec2, volume)
 
@@ -940,7 +940,7 @@ def create_instances(module, ec2, override_count=None):
         num_running = 0
         wait_timeout = time.time() + wait_timeout
         while wait_timeout > time.time() and num_running < len(instids):
-            try: 
+            try:
                 res_list = ec2.get_all_instances(instids)
             except boto.exception.BotoServerError, e:
                 if e.error_code == 'InvalidInstanceID.NotFound':
@@ -953,7 +953,7 @@ def create_instances(module, ec2, override_count=None):
             for res in res_list:
                 num_running += len([ i for i in res.instances if i.state=='running' ])
             if len(res_list) <= 0:
-                # got a bad response of some sort, possibly due to 
+                # got a bad response of some sort, possibly due to
                 # stale/cached data. Wait a second and then try again
                 time.sleep(1)
                 continue
@@ -1074,12 +1074,12 @@ def startstop_instances(module, ec2, instance_ids, state):
     "changed" will be set to False.
 
     """
-    
+
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
     changed = False
     instance_dict_array = []
-    
+
     if not isinstance(instance_ids, list) or len(instance_ids) < 1:
         module.fail_json(msg='instance_ids should be a list of instances, aborting')
 
@@ -1167,7 +1167,7 @@ def main():
 
     ec2 = ec2_connect(module)
 
-    tagged_instances = [] 
+    tagged_instances = []
 
     state = module.params.get('state')
 
