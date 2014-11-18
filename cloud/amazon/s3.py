@@ -305,7 +305,7 @@ def main():
             object         = dict(),
             src            = dict(),
             dest           = dict(default=None),
-            mode           = dict(choices=['get', 'put', 'delete', 'create', 'geturl', 'getstr'], required=True),
+            mode           = dict(choices=['get', 'put', 'delete', 'create', 'geturl', 'getstr', 'list'], required=True),
             expiry         = dict(default=600, aliases=['expiration']),
             s3_url         = dict(aliases=['S3_URL']),
             overwrite      = dict(aliases=['force'], default=True, type='bool'),
