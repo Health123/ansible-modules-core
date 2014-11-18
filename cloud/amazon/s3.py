@@ -327,6 +327,9 @@ def main():
     s3_url = module.params.get('s3_url')
     overwrite = module.params.get('overwrite')
     metadata = module.params.get('metadata')
+    prefix = module.params.get('prefix')
+    marker = module.params.get('marker')
+    max_keys = module.params.get('max_keys')
 
     ec2_url, aws_access_key, aws_secret_key, region = get_ec2_creds(module)
 
